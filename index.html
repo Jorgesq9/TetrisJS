@@ -6,7 +6,7 @@
       rel="stylesheet"
     />
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/tetris.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Array.Tris()</title>
   </head>
@@ -14,18 +14,42 @@
     <div class="game-container">
       <h2 class="neon-title">Array.Tris()</h2>
 
+      <!-- Pantalla de inicio -->
+      <div id="startScreen" class="start-screen">
+        <input
+          type="text"
+          id="playerName"
+          class="neon-input"
+          placeholder="Enter your name"
+        />
+        <button id="startGame" class="neon-button">Start Game</button>
+      </div>
+
+      <!-- Zona de juego -->
       <div id="app">
         <canvas></canvas>
+        <audio id="gameMusic" loop>
+          <source src="Tetris.mp3" type="audio/mpeg" />
+        </audio>
+        <h2 class="js-neon">Score <span class="js-neon">0</span></h2>
       </div>
-      <h2 class="js-neon">Score <span class="js-neon">.JS</span></h2>
     </div>
 
-    <!-- Game Over Modal -->
+    <!-- Modal Game Over -->
     <div id="gameOverModal" class="modal">
       <div class="modal-content neon-box">
         <h2 class="neon-title game-over-title">GAME OVER!</h2>
         <p class="final-score">Score: <span class="neon-text">0</span></p>
-        <button id="restartButton" class="neon-button">NEW GAME</button>
+
+        <!-- Highscores con estructura mejorada -->
+        <div class="highscores">
+          <h3 class="js-neon">TOP SCORES</h3>
+
+          <ul id="highscoresList"></ul>
+        </div>
+
+        <button id="restartButton" class="neon-button">New Game</button>
+        <button id="homeButton" class="neon-button">Home</button>
       </div>
     </div>
 
