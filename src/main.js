@@ -19,17 +19,30 @@ class App {
 
   setupMusicControls() {
     const musicIcon = document.createElement("img");
-    musicIcon.src = "/assets/music-icon.png"; // Icono de altavoz
     musicIcon.className = "music-control";
     musicIcon.style.width = "40px";
     document.body.appendChild(musicIcon);
 
-    musicIcon.addEventListener("click", () => {
-      this.audio.paused ? this.audio.play() : this.audio.pause();
-      musicIcon.style.opacity = this.audio.paused ? 0.5 : 1;
-    });
-  }
+    // Iconos base64 para evitar dependencias externas
+    const icons = {
+      on: "SoundON.png",
+      off: "mute.png",
+    };
 
+    const updateIcon = () => {
+      musicIcon.src = this.audio.muted ? icons.off : icons.on;
+      musicIcon.title = this.audio.muted ? "Unmute" : "Mute";
+    };
+
+    musicIcon.addEventListener("click", () => {
+      this.audio.muted = !this.audio.muted;
+      updateIcon();
+    });
+
+    // Estado inicial
+    this.audio.muted = false;
+    updateIcon();
+  }
   initialize() {
     this.ui.bindStartGame(() => this.startGame());
     this.ui.bindRestartGame(() => this.restartGame());

@@ -15,42 +15,57 @@ export class Game {
       [
         [0, 1, 0],
         [1, 1, 1],
-      ],
+      ], // T
       [
         [1, 1, 0],
         [0, 1, 1],
-      ],
-      [[1, 1, 1, 1]],
+      ], // Z
+      [[1, 1, 1, 1]], // I
       [
         [0, 1, 1],
         [1, 1, 0],
-      ],
+      ], // S
       [
         [1, 1, 1],
         [0, 0, 1],
-      ],
+      ], // L
       [
         [1, 1, 1],
         [1, 0, 0],
-      ],
+      ], // J
     ];
+
+    this.nextPieceCanvas = document.getElementById("nextPieceCanvas");
+    this.nextPieceContext = this.nextPieceCanvas.getContext("2d");
+    this.PREVIEW_SIZE = 100;
+
+    // Configuración inicial del canvas de preview
+    this.nextPieceCanvas.width = this.PREVIEW_SIZE;
+    this.nextPieceCanvas.height = this.PREVIEW_SIZE;
+    this.nextPieceContext.scale(this.PREVIEW_SIZE / 5, this.PREVIEW_SIZE / 5);
 
     this.initGame();
     this.setupEventListeners();
   }
 
   initGame() {
-    // Canvas setup
+    // Configuración del canvas principal
     this.canvas.width = this.BLOCK_SIZE * this.BOARD_WIDTH;
     this.canvas.height = this.BLOCK_SIZE * this.BOARD_HEIGHT;
     this.context.scale(this.BLOCK_SIZE, this.BLOCK_SIZE);
 
-    // Game state
+    // Estado del juego
     this.board = this.createBoard();
-    this.currentPiece = this.createNewPiece();
     this.dropCounter = 0;
     this.lastTime = 0;
     this.gameOver = false;
+
+    // Sistema de piezas
+    this.nextPiece = {
+      shape: this.pieces[Math.floor(Math.random() * this.pieces.length)],
+    };
+    this.currentPiece = this.createNewPiece();
+    this.drawNextPiece();
   }
 
   createBoard() {
@@ -60,10 +75,67 @@ export class Game {
   }
 
   createNewPiece() {
+    const newShape = this.nextPiece.shape;
+    this.nextPiece.shape =
+      this.pieces[Math.floor(Math.random() * this.pieces.length)];
+
     return {
       position: { x: 5, y: 0 },
-      shape: this.pieces[Math.floor(Math.random() * this.pieces.length)],
+      shape: newShape,
     };
+  }
+
+  solidifyPiece() {
+    // Fijar pieza actual al tablero
+    this.currentPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          const boardY = y + this.currentPiece.position.y;
+          const boardX = x + this.currentPiece.position.x;
+          if (boardY >= 0) this.board[boardY][boardX] = 1;
+        }
+      });
+    });
+
+    // Generar nueva pieza
+    this.currentPiece = this.createNewPiece();
+
+    // Verificar Game Over antes de dibujar la siguiente pieza
+    if (
+      checkCollision(
+        this.currentPiece,
+        this.board,
+        this.BOARD_WIDTH,
+        this.BOARD_HEIGHT
+      )
+    ) {
+      this.gameOver = true;
+      this.board.forEach((row) => row.fill(0));
+      this.gameOverCallback?.();
+      return;
+    }
+
+    // Dibujar la nueva pieza en el preview
+    this.drawNextPiece();
+  }
+
+  drawNextPiece() {
+    // Limpiar canvas
+    this.nextPieceContext.clearRect(0, 0, 5, 5);
+
+    // Calcular offset para centrar
+    const offsetX = (5 - this.nextPiece.shape[0].length) / 2;
+    const offsetY = (5 - this.nextPiece.shape.length) / 2;
+
+    // Dibujar nueva pieza
+    this.nextPiece.shape.forEach((row, y) => {
+      row.forEach((value, x) => {
+        if (value) {
+          this.nextPieceContext.fillStyle = "blue";
+          this.nextPieceContext.fillRect(x + offsetX, y + offsetY, 1, 1);
+        }
+      });
+    });
   }
 
   setupEventListeners() {
@@ -105,18 +177,22 @@ export class Game {
   }
 
   dropPiece() {
-    this.currentPiece.position.y++;
-    if (
-      checkCollision(
-        this.currentPiece,
-        this.board,
-        this.BOARD_WIDTH,
-        this.BOARD_HEIGHT
-      )
-    ) {
-      this.currentPiece.position.y--;
-      this.solidifyPiece();
-      this.removeRows();
+    const maxDropFrames = 1; // Limitar la cantidad máxima de veces que se mueve la pieza hacia abajo en cada cuadro
+    for (let i = 0; i < maxDropFrames; i++) {
+      this.currentPiece.position.y++;
+      if (
+        checkCollision(
+          this.currentPiece,
+          this.board,
+          this.BOARD_WIDTH,
+          this.BOARD_HEIGHT
+        )
+      ) {
+        this.currentPiece.position.y--;
+        this.solidifyPiece();
+        this.removeRows();
+        break;
+      }
     }
     this.draw();
   }
@@ -148,7 +224,6 @@ export class Game {
 
     if (this.dropCounter > 500) {
       this.currentPiece.position.y++;
-
       if (
         checkCollision(
           this.currentPiece,
@@ -161,10 +236,8 @@ export class Game {
         this.solidifyPiece();
         this.removeRows();
       }
-
       this.dropCounter = 0;
     }
-
     this.draw();
     requestAnimationFrame((t) => this.update(t));
   }
@@ -173,7 +246,7 @@ export class Game {
     this.context.fillStyle = "#000";
     this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Draw board
+    // Dibujar tablero
     this.board.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
@@ -183,7 +256,7 @@ export class Game {
       });
     });
 
-    // Draw current piece
+    // Dibujar pieza actual
     this.currentPiece.shape.forEach((row, y) => {
       row.forEach((value, x) => {
         if (value) {
@@ -199,38 +272,8 @@ export class Game {
     });
   }
 
-  solidifyPiece() {
-    this.currentPiece.shape.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value) {
-          const boardY = y + this.currentPiece.position.y;
-          const boardX = x + this.currentPiece.position.x;
-          if (boardY >= 0) this.board[boardY][boardX] = 1;
-        }
-      });
-    });
-
-    // Reset piece
-    this.currentPiece = this.createNewPiece();
-
-    // Check game over
-    if (
-      checkCollision(
-        this.currentPiece,
-        this.board,
-        this.BOARD_WIDTH,
-        this.BOARD_HEIGHT
-      )
-    ) {
-      this.gameOver = true;
-      this.board.forEach((row) => row.fill(0));
-      this.gameOverCallback?.();
-    }
-  }
-
   removeRows() {
     const fullRows = [];
-
     this.board.forEach((row, y) => {
       if (row.every((cell) => cell === 1)) fullRows.push(y);
     });

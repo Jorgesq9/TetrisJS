@@ -178,6 +178,48 @@ h2.neon-title {
   min-width: 60px;
 }
 
+.music-control {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  z-index: 1000;
+}
+
+.music-control:hover {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 4px var(--neon-blue));
+}
+
+.next-piece {
+  display: none;
+  position: absolute;
+  top: 120px;
+  right: 20px;
+  text-align: center;
+}
+
+#nextPieceCanvas {
+  border: 2px solid var(--neon-blue);
+  border-radius: 8px;
+  margin-top: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .next-piece {
+    top: 100px;
+    right: 10px;
+  }
+
+  #nextPieceCanvas {
+    width: 60px;
+    height: 60px;
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .game-container {
@@ -224,7 +266,7 @@ h2.neon-title {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   /* Mobile */
   h2.neon-title {
     font-size: 1.2rem;

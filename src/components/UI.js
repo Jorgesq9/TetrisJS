@@ -12,22 +12,22 @@ export class UI {
         this.startScreen.style.display = "block";
         this.gameScreen.style.display = "none";
         this.gameOverScreen.style.display = "none";
-
-        // 🔹 Limpiar el campo de nombre cuando se vuelve a la pantalla inicial
+        document.querySelector(".next-piece").style.display = "none"; // Añadir esta línea
         document.getElementById("playerName").value = "";
       },
       game: () => {
         this.startScreen.style.display = "none";
         this.gameScreen.style.display = "block";
         this.gameOverScreen.style.display = "none";
+        document.querySelector(".next-piece").style.display = "block"; // Añadir esta línea
       },
       gameOver: () => {
         this.startScreen.style.display = "none";
         this.gameScreen.style.display = "none";
         this.gameOverScreen.style.display = "flex";
+        document.querySelector(".next-piece").style.display = "none"; // Añadir esta línea
       },
     };
-
     screens[screenName]?.();
   }
 
