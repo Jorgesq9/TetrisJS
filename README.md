@@ -56,10 +56,9 @@ npm run build
 
 Esto generará la carpeta `dist/`, lista para ser servida con Nginx.
 
-## 🌍 Despliegue en Nginx
+## 🌍 Despliegue Actual
 
-1. Mover el contenido de `dist/` al servidor
-2. Configurar Nginx con el siguiente bloque:
+El juego está alojado en un servidor casero utilizando cloudflared (Cloudflare Tunnel), lo que permite exponerlo al público sin abrir puertos ni usar una IP pública.
 
 ```nginx
 server {
